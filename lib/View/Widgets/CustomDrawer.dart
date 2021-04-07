@@ -1,42 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_adaptive/Controllers/MenuController.dart';
+import 'package:get/get.dart';
+
+import '../../constants.dart';
 
 class CustomDrawer extends StatelessWidget {
+  final MenuController _controller = Get.put(MenuController());
+
   @override
   Widget build(BuildContext context) {
-    return  Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Drawer Header'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
+    return Drawer(
+      child: Container(
+        color: kDarkBlackColor,
+        child: Obx(
+              () => ListView(
+            children: [
+              DrawerHeader(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: kDefaultPadding * 3.5),
+                 // child: SvgPicture.asset("assets/icons/logo.svg"),
+                ),
               ),
-            ),
-            ListTile(
-              title: Text('Item 1'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Item 2'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-          ],
+              ...List.generate(
+                _controller.menuItems.length,
+                    (index) => DrawerItem(
+                  isActive: index == _controller.selectedIndex,
+                  title: _controller.menuItems[index],
+                  press: () {
+                    _controller.setMenuIndex(index);
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+class DrawerItem extends StatelessWidget {
+  final String title;
+  final bool isActive;
+  final VoidCallback press;
+
+  const DrawerItem({
+    Key key,
+    @required this.title,
+    @required this.isActive,
+    @required this.press,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: kDefaultPadding),
+        selected: isActive,
+        selectedTileColor: kPrimaryColor,
+        onTap: press,
+        title: Text(
+          title,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
     );
   }
 }
